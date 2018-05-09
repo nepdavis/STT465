@@ -1,0 +1,1 @@
+This homework focuses on implementing an OLS solution for regression using the gout.txt dataset (predicting for serum urate)

@@ -1,0 +1,1 @@
+These are a small collection of scripts implementing OLS and Gibbs sampler solutions for regression in R (mostly using the gout.txt dataset as a solution)

@@ -1,0 +1,1 @@
+The homework was focused on implementing a Gibbs sampler for logistic regression using the gout.txt datset (predicting for gout incidence)

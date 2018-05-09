@@ -1,0 +1,1 @@
+This homework was focused on implementing a Gibbs sampler for multiple linear regression on the gout.txt dataset (predicting for serum urate)

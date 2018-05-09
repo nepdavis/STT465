@@ -1,0 +1,1 @@
+This homework focused on solving various problems assignemed from Dr. Peter Hoff's Intro to Bayesian Statistics textbook used throughout the course. This homework covered parameter estimation and deriving various probability distributions from posterior, prior, and likelihood distributions.
