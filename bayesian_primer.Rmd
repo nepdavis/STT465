@@ -1,0 +1,282 @@
+---
+title: "Bayesian & Probabilistic Models"
+author: "Nate Davis"
+output:
+  beamer_presentation: default
+  ioslides_presentation: default
+  slidy_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Overview
+1. Using Bayes Rule
+2. A simple model
+3. Estimation
+4. Why Bayes?
+5. Some more models
+6. Probabilistic modeling (if we have time)
+
+## Beginning with a common example
+
+- A rare disease only affects 0.5% of the population
+- New test is made that always detects disease when tested on diseased people
+- However, it falsely tests positive 5% of the time in healthy people
+
+<br><br><br>
+**What is the probability a person has the disease when tested positive?**
+
+## Beginning with a common example
+
+- We incorrectly diagnose 5% of healthy people as diseased
+- So some might say 95% of people who test positive are diseased
+
+<br><br>
+
+**95% is far too high - we need to include prior information about our rates**
+<br>
+<br>
+<br>
+$$ P(\cdot) = \frac{\text{# diseased who tested positive}}{\text{# people who tested positive}} $$
+
+## Need to know probability of diseased given a positive test result
+
+$$ P(diseased|positive) = \frac{P(positive|diseased)P(diseased)}{P(positive)} $$
+<br>
+<br>
+$P(diseased) = 0.005$<br>
+
+
+$P(healthy) = 0.995$<br>
+
+
+$P(positive|diseased) = 1$<br>
+
+
+$P(positive|healthy) = 0.05$<br>
+
+
+## Need to know probability of diseased given a positive test result
+
+$$ P(dis.|pos.) = \frac{P(pos.|dis.)P(dis.)}{P(pos.|dis.)P(dis.)+
+P(pos.|healthy)P(healthy)} $$
+<br>
+<br>
+$P(diseased) = 0.005$<br>
+
+
+$P(healthy) = 0.995$<br>
+
+
+$P(positive|diseased) = 1$<br>
+
+
+$P(positive|healthy) = 0.05$<br>
+
+
+## Need to know probability of diseased given a positive test result
+
+$$ P(diseased|positive) = \frac{1*0.005}{1*0.005+
+0.05*0.995} $$
+<br>
+<br>
+$P(diseased) = 0.005$<br>
+
+
+$P(healthy) = 0.995$<br>
+
+
+$P(positive|diseased) = 1$<br>
+
+
+$P(positive|healthy) = 0.05$<br>
+
+
+## Need to know probability of diseased given a positive test result
+
+$$ P(diseased|positive) \approx 0.0913 $$
+<br>
+<br>
+**Only about 9%**
+<br>
+<br>
+In 1000 people, ~50 healthy people would be diagnosed while there'd be only 5 actual diseased people
+
+## Bayes rule is the foundation of many different models
+
+$$ P(\theta|Y) = \frac{P(Y|\theta)P(\theta)}{P(Y)} $$
+<br>
+<br>
+
+- In the previous example, we had almost perfect information
+- When we don't have perfect information, we need to use distributions to describe what we do know
+- Instead of thinking the above as exact probabilities, now think of them as distributions 
+
+## Bayes rule is the foundation of many different models
+
+$$ P(\theta|Y) = \frac{P(Y|\theta)P(\theta)}{P(Y)} $$
+
+<br>
+<br>
+
+- $P(Y|\theta)$ is our **likelihood** of the data<br>
+- $P(\theta)$ is our **prior** information
+- $P(\theta|Y)$ is our **posterior**, or distribution of estimates
+
+<br>
+<br>
+These are described as probability distributions rather than single probabilities
+
+## Using Bayesian inference as an example
+
+- Say we sample 20 different habitats and count 20 of the same species across all habitats
+- This is count data, so we want to infer the unbiased estimate of $\lambda$, the average counts
+- Our likelihood is Poisson & our prior is exponential
+
+## Using Bayesian inference as an example
+
+```{r}
+
+N      <- 20
+Y      <- 11
+a      <- 0.5
+b      <- 0.5
+
+grid   <- seq(0.01,2,.01)
+
+like   <- dpois(Y,N*grid)
+like   <- like/sum(like) #standardize
+
+prior  <- dgamma(grid,a,b)
+prior  <- prior/sum(prior) #standardize
+
+post   <- like*prior
+post   <- post/sum(post)
+
+plot(grid,like,type="l",lty=2,
+     xlab="Lambda",ylab="Density", ylim = c(.0001, .0275))
+lines(grid,prior)
+#lines(grid,post,lwd=2)
+
+legend("topright",c("Likelihood","Prior"),
+       lwd=c(1,1),lty=c(2,1),inset=0.05)
+
+```
+
+## Using Bayesian inference as an example
+
+```{r}
+
+plot(grid,like,type="l",lty=2,
+     xlab="Lambda",ylab="Density", ylim = c(.0001, .0275))
+lines(grid,prior)
+lines(grid,post,lwd=2)
+
+legend("topright",c("Likelihood","Prior", "Posterior"),
+       lwd=c(1,1,3),lty=c(2,1,1),inset=0.05,
+       col = c("black","black","black"))
+
+```
+
+## Using Bayesian inference as an example
+
+```{r}
+
+plot(grid,like,type="l",lty=2,
+     xlab="Lambda",ylab="Density", ylim = c(.0001, .0275))
+lines(grid,prior)
+lines(grid,post,lwd=2)
+abline(v = 11/20, col = "red")
+
+legend("topright",c("Likelihood","Prior", "Posterior", "MLE"),
+       lwd=c(1,1,3,1),lty=c(2,1,1,1),inset=0.05,
+       col = c("black","black","black","red"))
+
+```
+
+## So what just happened
+
+- The maximum likelihood estimate is a way to get a parameter value by just looking at the data
+- In this case it would be $11/20$ or $0.55$
+
+<br>
+
+$$ \theta = \text{arg max }{P(Y|\theta)} $$
+<br>
+<br>
+
+$$ \theta = \text{arg max }{L(\theta, Y)} $$
+<br>
+<br>
+This is just a "point estimate"" (often times the mean)
+
+## Is there a "Bayesian MLE"?
+
+- Well, kind of: the maximum a posteriori (MAP) estimate
+
+<br>
+$$ \theta = \text{arg max }P(Y|\theta)P(\theta) $$
+
+<br>
+<br>
+
+- The value of theta that has the maximum probability within our posterior distribution
+- This takes prior information into account and isn't a "point calculation"
+
+
+## Using Bayesian inference as an example
+
+```{r}
+
+plot(grid,like,type="l",lty=2,
+     xlab="Lambda",ylab="Density", ylim = c(.0001, .0275))
+lines(grid,prior)
+lines(grid,post,lwd=2)
+abline(v = 11/20, col = "red")
+abline(v = grid[which.max(post)], col = "blue")
+
+legend("topright",c("Likelihood","Prior", "Posterior", "MLE", "MAP"),
+       lwd=c(1,1,3,1,1),lty=c(2,1,1,1,1),inset=0.05,
+       col = c("black","black","black","red", "blue"))
+
+```
+
+## A note on priors
+
+- In the previous example, we used a relatively "uninformative prior"
+
+<br>
+
+- This means we just chose a distribution that would have little influence
+
+<br>
+
+- This is a very common approach, with the uniform or normals being used
+
+<br>
+
+- You can choose an informative prior too
+
+
+## Why should we care about Bayesian models?
+
+- Results are very interpretable & don't rely on p-values :)
+<br>
+- Incorporates more information
+<br>
+- Highly flexible
+<br>
+- Historically less biased for high-dimensional problems
+
+## What the pitfalls of Bayesian analysis?
+
+- Computationally expensive (for many common models)
+- You have to incorporate more information
+
+## A lot has been covered so far, but there's a lot more
+
+- Parameter estimation via sampling - think MCMC
+- Classification & Naive Bayes
+- Bayesian networks
